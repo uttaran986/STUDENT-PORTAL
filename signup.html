@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up – Student Portal{% endblock %}
+{% block content %}
+
+<style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    main { width: 100%; max-width: 460px; padding: 1.5rem; }
+
+    .auth-logo { text-align: center; margin-bottom: 2rem; }
+    .auth-logo .symbol { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+    .auth-logo h1 { font-family: 'Space Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+    .auth-logo p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+
+    .auth-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 0 40px rgba(59,130,246,0.08);
+    }
+
+    .auth-footer { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted); }
+    .auth-footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .auth-footer a:hover { text-decoration: underline; }
+
+    .btn-primary { width: 100%; justify-content: center; padding: 12px; font-size: 0.95rem; margin-top: 0.5rem; }
+
+    .hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+</style>
+
+<div class="auth-logo">
+    <span class="symbol">◈</span>
+    <h1>StudentPortal</h1>
+    <p>Create your account</p>
+</div>
+
+<div class="auth-card">
+    <div class="card-title" style="justify-content: center; border: none; margin-bottom: 1.5rem;">New Student Registration</div>
+
+    {% if msg %}
+    <div class="alert alert-danger">{{ msg }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('signup') }}">
+        <div class="form-group">
+            <label for="full_name">Full Name</label>
+            <input type="text" id="full_name" name="full_name" placeholder="Your full name">
+        </div>
+        <div class="form-group">
+            <label for="username">Username <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="username" name="username" placeholder="Choose a username" required>
+            <p class="hint">Letters and numbers only</p>
+        </div>
+        <div class="form-group">
+            <label for="email">Email Address <span style="color:var(--danger)">*</span></label>
+            <input type="email" id="email" name="email" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password <span style="color:var(--danger)">*</span></label>
+            <input type="password" id="password" name="password" placeholder="Min. 6 characters" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Account →</button>
+    </form>
+
+    <div class="auth-footer" style="margin-top: 1.25rem;">
+        Already have an account?
+        <a href="{{ url_for('login') }}">Sign in</a>
+    </div>
+</div>
+
+{% endblock %}

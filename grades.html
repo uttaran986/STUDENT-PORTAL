@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}My Grades – Student Portal{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>My Grades</h1>
+    <p>Your academic performance overview — read-only</p>
+</div>
+
+<!-- GPA Banner -->
+<div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(6,182,212,0.05)); border-color: rgba(59,130,246,0.3);">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 4px;">Cumulative GPA</div>
+            <div style="font-family: 'Space Mono', monospace; font-size: 3rem; font-weight: 700; color: var(--accent);">{{ gpa }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Based on {{ grades|length }} subject{{ 's' if grades|length != 1 }}</div>
+        </div>
+        <div style="display: flex; gap: 1.5rem;">
+            {% set passing = grades | selectattr('grade', 'ne', 'F') | list | length %}
+            <div style="text-align: center;">
+                <div style="font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; color: var(--success);">{{ passing }}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Passed</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; color: var(--danger);">{{ grades|length - passing }}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Failed</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notice -->
+<div class="alert alert-info" style="margin-bottom: 1.5rem;">
+    ℹ Grades are assigned by administrators and cannot be edited by students. Contact your instructor for any discrepancies.
+</div>
+
+<!-- Grades Table -->
+<div class="card">
+    <div class="card-title">📊 Subject-wise Performance</div>
+
+    {% if grades %}
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Subject</th>
+                <th>Marks Obtained</th>
+                <th>Percentage</th>
+                <th>Grade</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for g in grades %}
+            <tr>
+                <td style="font-family: 'Space Mono', monospace; color: var(--text-muted);">{{ loop.index }}</td>
+                <td style="color: var(--text); font-weight: 500;">{{ g.subject }}</td>
+                <td style="font-family: 'Space Mono', monospace; color: var(--text);">{{ g.marks }} / 100</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="flex: 1; height: 6px; background: var(--border); border-radius: 3px; max-width: 80px;">
+                            <div style="height: 100%; border-radius: 3px; width: {{ g.marks }}%;
+                                background: {% if g.marks >= 75 %}var(--success){% elif g.marks >= 50 %}var(--warning){% else %}var(--danger){% endif %};"></div>
+                        </div>
+                        <span style="font-size: 0.8rem; font-family: 'Space Mono', monospace;">{{ g.marks }}%</span>
+                    </div>
+                </td>
+                <td>
+                    {% if g.grade in ['A+', 'A'] %}
+                        <span class="badge badge-success">{{ g.grade }}</span>
+                    {% elif g.grade in ['B+', 'B'] %}
+                        <span class="badge badge-info">{{ g.grade }}</span>
+                    {% elif g.grade in ['C+', 'C'] %}
+                        <span class="badge badge-warning">{{ g.grade }}</span>
+                    {% else %}
+                        <span class="badge badge-danger">{{ g.grade }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if g.grade != 'F' %}
+                        <span style="color: var(--success); font-size: 0.8rem;">✓ Pass</span>
+                    {% else %}
+                        <span style="color: var(--danger); font-size: 0.8rem;">✗ Fail</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Grade Legend -->
+    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Grade Scale</p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            {% for g, r in [('A+','91-100'), ('A','81-90'), ('B+','71-80'), ('B','61-70'), ('C+','51-60'), ('C','40-50'), ('F','<40')] %}
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
+                <span class="badge {% if g in ['A+','A'] %}badge-success{% elif g in ['B+','B'] %}badge-info{% elif g in ['C+','C'] %}badge-warning{% else %}badge-danger{% endif %}" style="font-size: 0.7rem;">{{ g }}</span>
+                {{ r }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+        <p>No grades have been assigned yet.</p>
+        <p style="font-size: 0.85rem; margin-top: 4px;">Check back after your assessments are evaluated.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

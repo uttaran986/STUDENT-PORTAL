@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard – Student Portal{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>Welcome back, {{ account.full_name or account.username }} 👋</h1>
+    <p>Here's your academic overview</p>
+</div>
+
+<!-- Stats Row -->
+<div class="grid-3" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-label">Total Subjects</div>
+        <div class="stat-value">{{ grades|length }}</div>
+        <div class="stat-sub">Enrolled courses</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Avg. Marks</div>
+        {% set total = grades | sum(attribute='marks') %}
+        <div class="stat-value">
+            {% if grades %}{{ "%.1f"|format(total / grades|length) }}{% else %}—{% endif %}
+        </div>
+        <div class="stat-sub">Out of 100</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Documents</div>
+        <div class="stat-value">{{ documents|length }}</div>
+        <div class="stat-sub">Shared in portal</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- Recent Grades -->
+    <div class="card">
+        <div class="card-title">📊 Recent Grades</div>
+        {% if grades %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Marks</th>
+                    <th>Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in grades[:5] %}
+                <tr>
+                    <td style="color: var(--text);">{{ g.subject }}</td>
+                    <td style="font-family: 'Space Mono', monospace;">{{ g.marks }}</td>
+                    <td>
+                        {% if g.grade in ['A+', 'A'] %}
+                            <span class="badge badge-success">{{ g.grade }}</span>
+                        {% elif g.grade in ['B+', 'B'] %}
+                            <span class="badge badge-info">{{ g.grade }}</span>
+                        {% elif g.grade in ['C+', 'C'] %}
+                            <span class="badge badge-warning">{{ g.grade }}</span>
+                        {% else %}
+                            <span class="badge badge-danger">{{ g.grade }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top: 1rem;">
+            <a href="{{ url_for('grades') }}" class="btn btn-ghost btn-sm">View all grades →</a>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); font-size: 0.875rem;">No grades available yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Recent Documents -->
+    <div class="card">
+        <div class="card-title">📄 Recent Documents</div>
+        {% if documents %}
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            {% for doc in documents[:4] %}
+            <div style="background: var(--surface2); border-radius: 8px; padding: 12px;">
+                <div style="font-weight: 600; font-size: 0.875rem; color: var(--text); margin-bottom: 4px;">{{ doc.title }}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    By {{ doc.shared_by }} ·
+                    {% if doc.is_public %}<span style="color: var(--success);">Public</span>{% else %}<span style="color: var(--text-muted);">Private</span>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 1rem;">
+            <a href="{{ url_for('documents') }}" class="btn btn-ghost btn-sm">All documents →</a>
+        </div>
+        {% else %}
+        <p style="color: var(--text-muted); font-size: 0.875rem;">No documents shared yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card" style="margin-top: 1.5rem;">
+    <div class="card-title">⚡ Quick Actions</div>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{{ url_for('profile') }}"       class="btn btn-ghost">✏ Edit Profile</a>
+        <a href="{{ url_for('reset_password') }}" class="btn btn-ghost">🔒 Reset Password</a>
+        <a href="{{ url_for('grades') }}"          class="btn btn-ghost">📊 View Grades</a>
+        <a href="{{ url_for('documents') }}"       class="btn btn-primary">📤 Share Document</a>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Documents – Student Portal{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <h1>Document Sharing</h1>
+    <p>Share notes and resources with the community</p>
+</div>
+
+<div class="grid-2" style="align-items: start;">
+    <!-- Upload Form -->
+    <div class="card">
+        <div class="card-title">📤 Share a Document</div>
+        <form method="POST" action="{{ url_for('documents') }}">
+            <div class="form-group">
+                <label for="title">Title <span style="color:var(--danger)">*</span></label>
+                <input type="text" id="title" name="title" placeholder="Document title" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Short Description</label>
+                <input type="text" id="description" name="description" placeholder="Brief summary (optional)">
+            </div>
+            <div class="form-group">
+                <label for="content">Content <span style="color:var(--danger)">*</span></label>
+                <textarea id="content" name="content" placeholder="Paste your document content here..." required style="min-height: 200px;"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_public" checked>
+                    Make this document public (visible to all students)
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Share Document</button>
+        </form>
+    </div>
+
+    <!-- Documents List -->
+    <div>
+        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1rem;">
+            {{ documents|length }} document{{ 's' if documents|length != 1 }} available
+        </div>
+
+        {% if documents %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for doc in documents %}
+            <div class="card" style="padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="font-weight: 600; color: var(--text); margin-bottom: 4px; font-size: 0.95rem;">
+                            📄 {{ doc.title }}
+                        </div>
+                        {% if doc.description %}
+                        <div style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 8px;">{{ doc.description }}</div>
+                        {% endif %}
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                            By <strong style="color: var(--text-dim);">{{ doc.shared_by }}</strong> ·
+                            {{ doc.created_at.strftime('%d %b %Y') if doc.created_at else '' }} ·
+                            {% if doc.is_public %}
+                            <span style="color: var(--success);">🌐 Public</span>
+                            {% else %}
+                            <span style="color: var(--text-muted);">🔒 Private</span>
+                            {% endif %}
+                        </div>
+                        <!-- Content Preview -->
+                        <div style="margin-top: 10px; background: var(--bg); border-radius: 6px; padding: 10px; font-size: 0.8rem; color: var(--text-dim); max-height: 80px; overflow: hidden; white-space: pre-wrap; font-family: 'Space Mono', monospace; border: 1px solid var(--border);">{{ doc.content[:200] }}{% if doc.content|length > 200 %}...{% endif %}</div>
+                    </div>
+                    {% if doc.uploaded_by == session.id or session.role == 'admin' %}
+                    <form method="POST" action="{{ url_for('delete_document', doc_id=doc.id) }}" onsubmit="return confirm('Delete this document?')">
+                        <button type="submit" class="btn btn-danger btn-sm">✕</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+            <p>No documents shared yet.</p>
+            <p style="font-size: 0.85rem; margin-top: 4px;">Be the first to share a resource!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
